@@ -72,7 +72,7 @@ struct TMA_LOAD_Unpack
 
     auto src_coord = src.data().coord_;
     void* dst_ptr = cute::raw_pointer_cast(dst.data());
-#if 0
+#if 1
     auto [c0,c1,c2,c3,c4] = append<5>(src_coord, 0);
     printf("THR (%d,%d,%d) BLK (%d,%d,%d) TMACRD (%d,%d,%d,%d,%d) SMEMADDR (%p)\n",
           threadIdx.x, threadIdx.y, threadIdx.z,
@@ -373,7 +373,7 @@ struct Copy_Traits<SM90_TMA_STORE, NumBitsPerTMA, AuxParams_>
     void const* const desc_ptr = &(traits.tma_desc_);
     void const* const src_ptr  = cute::raw_pointer_cast(src.data());
     auto dst_coord = dst.data().coord_;
-#if 0
+#if 1
     auto [c0,c1,c2,c3,c4] = append<5>(dst_coord, 0);
     printf("THR (%d,%d,%d) BLK (%d,%d,%d) TMACRD (%d,%d,%d,%d,%d) SMEMADDR (%p)\n",
            threadIdx.x, threadIdx.y, threadIdx.z,
@@ -414,7 +414,7 @@ struct Copy_Traits<SM90_TMA_STORE_PTR, NumBitsPerTMA>
     void const* const desc_ptr = traits.tma_desc_;
     void const* const src_ptr  = cute::raw_pointer_cast(src.data());
     auto dst_coord = dst.data().coord_;
-#if 0
+#if 1
     auto [c0,c1,c2,c3,c4] = append<5>(dst_coord, 0);
     printf("THR (%d,%d,%d) BLK (%d,%d,%d) TMACRD (%d,%d,%d,%d,%d) SMEMADDR (%p)\n",
            threadIdx.x, threadIdx.y, threadIdx.z,
@@ -472,9 +472,9 @@ struct Copy_Traits<SM90_TMA_REDUCE_ADD, NumBitsPerTMA, AuxParams_>
   copy_unpack_(void const* const src_ptr,
                Coord const& dst_coord, seq<Is...>) const
   {
-#if 0
+#if 1
     auto [c0,c1,c2,c3,c4] = append<5>(dst_coord, 0);
-    printf("THR (%d,%d,%d) BLK (%d,%d,%d) TMACRD (%d,%d,%d,%d,%d) SMEMADDR (%p)\n",
+    printf("Copy_Traits<SM90_TMA_REDUCE_ADD>::copy_unpack_: THR (%d,%d,%d) BLK (%d,%d,%d) TMACRD (%d,%d,%d,%d,%d) SMEMADDR (%p)\n",
            threadIdx.x, threadIdx.y, threadIdx.z,
            blockIdx.x, blockIdx.y, blockIdx.z,
            int32_t(c0), int32_t(c1), int32_t(c2), int32_t(c3), int32_t(c4), src_ptr);
@@ -706,7 +706,8 @@ construct_tma_gbasis(Tensor<GEngine,GLayout> const& gtensor,       // The origin
   CUTE_STATIC_ASSERT_V(size(slayout) == size(cta_v_map),
                        "TMA requires CTA_Tile and SLayout top-level size equivalence.");
 
-#if 0
+#if 1
+  print("construct_tma_gbasis():\n");
   print("gtensor         : "); print(gtensor); print("\n");
   print("slayout         : "); print(slayout); print("\n");
   print("cta_v_map       : "); print(cta_v_map); print("\n");
@@ -724,7 +725,7 @@ construct_tma_gbasis(Tensor<GEngine,GLayout> const& gtensor,       // The origin
   // smem idx -> gmem mode
   auto sidx2gmode_full = coalesce(composition(cta_v_map, inv_smem_layout));
 
-#if 0
+#if 1
   print("inv_smem_layout : "); print(inv_smem_layout); print("\n");
   print("sidx2gmode_full : "); print(sidx2gmode_full); print("\n");
 #endif
@@ -743,7 +744,7 @@ construct_tma_gbasis(Tensor<GEngine,GLayout> const& gtensor,       // The origin
   // Keep only the static-1 basis modes into gmem
   auto sidx2gmode = take<0,smem_rank>(sidx2gmode_full);
 
-#if 0
+#if 1
   print("smem_rank  : "); print(smem_rank); print("\n");
   print("sidx2gmode : "); print(sidx2gmode); print("\n");
 #endif
@@ -800,7 +801,7 @@ construct_tma_gbasis(Tensor<GEngine,GLayout> const& gtensor,       // The origin
   // tma_box_shape:gmem_mode
   auto tma_gbasis = group<cute::min(rank(tma_gbasis_full),4),-1>(tma_gbasis_full);
 
-#if 0
+#if 1
   print("tile_gstride : "); print(tile_gstride); print("\n");
   print("tma_gstride  : "); print(tma_gstride); print("\n");
   print("gbasis       : "); print(gbasis); print("\n");
@@ -1036,6 +1037,19 @@ make_tma_copy_desc(Tensor<GEngine,GLayout> const& gtensor,         // The origin
       assert(false);
     }
 
+    std::cout << "TMA Desc Addr:   " << &tma_desc
+              << "\n        format         " << tma_format
+              << "\n        dim            " << tma_dim
+              << "\n        gmem_address   " << gmem_address
+              << "\n        globalDim      " << gmem_prob_shape
+              << "\n        globalStrides  " << gmem_prob_stride
+              << "\n        boxDim         " << smem_box_shape
+              << "\n        elementStrides " << smem_box_stride
+              << "\n        interleave     " << tma_interleave
+              << "\n        swizzle        " << smem_swizzle
+              << "\n        l2Promotion    " << tma_l2Promotion
+              << "\n        oobFill        " << tma_oobFill << std::endl;
+
   #endif // (__CUDACC_VER_MAJOR__ >= 12) && !defined(__CUDACC_RTC__)
   auto recast_ratio = cute::trait_ratio(sizeof_bits<typename GEngine::value_type>{},
                                         sizeof_bits<             TmaInternalType>{});
@@ -1069,7 +1083,7 @@ make_tma_copy_desc(Tensor<GEngine,GLayout> const& gtensor,         // The origin
     }
   });
 
-#if 0
+#if 1
     print("gmem_tma_basis_stride : "); print(gmem_tma_basis_stride); print("\n");
 #endif
 
@@ -1095,6 +1109,7 @@ make_tma_copy_atom(CopyOp,
   //
   // TMA truncated layout
   //
+  print("Entering make_tma_copy_atom ...\n");
 
   auto smem_swizzle = get_swizzle_portion(slayout);
   auto smem_layout  = get_nonswizzle_portion(slayout);
@@ -1120,7 +1135,15 @@ make_tma_copy_atom(CopyOp,
 
   Traits tma_traits{tma_desc, aux_params};
 
-#if 0
+#if 1
+  print("In copy_traits_sm90_tma.hpp - make_tma_copy_atom():\n");
+  print("gtensor (Full GMEM Tensor)                       :  "); print(gtensor); print("\n");
+  print("slayout (CTA Tile of SMEM, potentially swizzled) :  "); print(slayout); print("\n");
+  print("num_multicast (# CTAs involved in multicasting)  :  "); print(num_multicast); print("\n");
+  print("cta_v_map (V: CTA val idx -> gmem mode)          :  "); print(cta_v_map); print("\n");
+  print("smem_swizzle = get_swizzle_portion(slayout)      :  "); print(smem_swizzle); print("\n");
+  print("smem_layout  = get_nonswizzle_portion(slayout)   :  "); print(smem_layout); print("\n");
+  print("tma_gbasis       :  "); print(tma_gbasis); print(". It's constructed by gtensor, smem_layout, cta_v_map\n");
   print("num_bits_per_tma :  "); print(num_bits_per_tma); print("\n");
   print("g_stride_bases   :  "); print(tma_traits.aux_params_.g_stride_); print("\n");
 #endif
@@ -1171,7 +1194,8 @@ make_tma_copy_tiled(CopyOp                  const& copy_op,
   // Combine with the T mapping
   [[maybe_unused]] auto layout_TV = make_layout(layout_T, layout_V);
 
-#if 0
+#if 1
+  print("make_tma_copy_tiled():\n");
   print("cta_tiler : "); print(cta_tiler); print("\n");
   print("layout_v : "); print(layout_v); print("\n");
   print("layout_V : "); print(layout_V); print("\n");
