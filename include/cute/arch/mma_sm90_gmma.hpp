@@ -39,6 +39,23 @@
 #  define CUTE_ARCH_MMA_SM90A_ENABLED
 #endif
 
+union SMemDesc {
+  uint64_t desc_;
+  struct {
+    // start_address, bit [0,14), 4LSB not included
+    uint16_t start_address_       : 14, : 2;  // 14 bits，2 bits未使用
+    // leading dimension byte offset, bit [16,30), 4LSB not included
+    uint16_t leading_byte_offset_  : 14, : 2;  // 14 bits，2 bits未使用
+    // stride dimension byte offset, bit [32,46), 4LSB not included
+    uint16_t stride_byte_offset_   : 14, version_ : 2;  // 14 bits及2 bits版本号
+    // base_offset, bit [49,52). leading_byte_offset_mode, bit [52,53)
+    uint8_t  : 1, base_offset_      : 3, lbo_mode_ : 1, : 3;  // 1 bit未使用, 3+1 bits有效，3 bit未使用
+    // layout type, bit [61,64)
+    uint8_t  : 5, layout_type_      : 3;  // 5 bit未使用, 3 bit layout_type_
+  } bitfield;
+  __host__ __device__ constexpr operator uint64_t() const noexcept { return desc_; }
+};
+
 namespace cute {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +125,14 @@ enum class Major {
   K  = 0,
   MN = 1
 };
+
+inline __host__ __device__ const char* MajorToString(Major major) {
+  switch (major) {
+      case Major::K:  return "K";
+      case Major::MN: return "MN";
+      default:        return "Unknown";
+  }
+}
 
 enum class ScaleOut {
   Zero = 0,
@@ -332,6 +357,47 @@ struct MMA_64x32x16_F16F16F16_SS
       uint32_t      & d4, uint32_t      & d5, uint32_t      & d6, uint32_t      & d7,
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
+    if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+        threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+    {
+      printf("MMA_64x32x16_F16F16F16_SS: step 1\n");
+
+      // --- print info start ---
+      // 利用 SMemDesc 将 uint64_t 描述符转换成易读的位域结构
+      SMemDesc a;
+      a.desc_ = desc_a;  // 直接将 desc_a 数据加载到 union 中
+      SMemDesc b;
+      b.desc_ = desc_b;
+      
+      printf("  desc_a:\n");
+      printf("    start_address_       : %u (0x%X)\n", a.bitfield.start_address_, a.bitfield.start_address_);
+      printf("    leading_byte_offset_ : %u\n", a.bitfield.leading_byte_offset_);
+      printf("    stride_byte_offset_  : %u\n", a.bitfield.stride_byte_offset_);
+      printf("    version_             : %u\n", a.bitfield.version_);
+      printf("    base_offset_         : %u\n", a.bitfield.base_offset_);
+      printf("    lbo_mode_            : %u\n", a.bitfield.lbo_mode_);
+      printf("    layout_type_         : %u\n", a.bitfield.layout_type_);
+
+      printf("\n");
+      
+      printf("  desc_b:\n");
+      printf("    start_address_       : %u (0x%X)\n", b.bitfield.start_address_, b.bitfield.start_address_);
+      printf("    leading_byte_offset_ : %u\n", b.bitfield.leading_byte_offset_);
+      printf("    stride_byte_offset_  : %u\n", b.bitfield.stride_byte_offset_);
+      printf("    version_             : %u\n", b.bitfield.version_);
+      printf("    base_offset_         : %u\n", b.bitfield.base_offset_);
+      printf("    lbo_mode_            : %u\n", b.bitfield.lbo_mode_);
+      printf("    layout_type_         : %u\n", b.bitfield.layout_type_);
+
+      printf("\n");
+
+      // 打印 tnspA 和 tnspB 对应的字符串
+      printf("  tnspA: %s\n", MajorToString(tnspA));
+      printf("  tnspB: %s\n", MajorToString(tnspB));
+      
+      printf("\n");
+      // --- print info end ---
+    }
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
     cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
@@ -429,6 +495,39 @@ struct MMA_64x64x16_F16F16F16_SS
       uint32_t      & d12, uint32_t      & d13, uint32_t      & d14, uint32_t      & d15,
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
+    if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+        threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+    {
+      printf("MMA_64x64x16_F16F16F16_SS: step 1\n");
+
+      // --- print info start ---
+      // 利用 SMemDesc 将 uint64_t 描述符转换成易读的位域结构
+      SMemDesc a;
+      a.desc_ = desc_a;  // 直接将 desc_a 数据加载到 union 中
+      SMemDesc b;
+      b.desc_ = desc_b;
+      
+      printf("  desc_a:\n");
+      printf("    start_address_       : %u (0x%X)\n", a.bitfield.start_address_, a.bitfield.start_address_);
+      printf("    leading_byte_offset_ : %u\n", a.bitfield.leading_byte_offset_);
+      printf("    stride_byte_offset_  : %u\n", a.bitfield.stride_byte_offset_);
+      printf("    version_             : %u\n", a.bitfield.version_);
+      printf("    base_offset_         : %u\n", a.bitfield.base_offset_);
+      printf("    lbo_mode_            : %u\n", a.bitfield.lbo_mode_);
+      printf("    layout_type_         : %u\n", a.bitfield.layout_type_);
+
+      printf("\n");
+      
+      printf("  desc_b:\n");
+      printf("    start_address_       : %u (0x%X)\n", b.bitfield.start_address_, b.bitfield.start_address_);
+      printf("    leading_byte_offset_ : %u\n", b.bitfield.leading_byte_offset_);
+      printf("    stride_byte_offset_  : %u\n", b.bitfield.stride_byte_offset_);
+      printf("    version_             : %u\n", b.bitfield.version_);
+      printf("    base_offset_         : %u\n", b.bitfield.base_offset_);
+      printf("    lbo_mode_            : %u\n", b.bitfield.lbo_mode_);
+      printf("    layout_type_         : %u\n", b.bitfield.layout_type_);
+      // --- print info end ---
+    }
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
     cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(

@@ -96,6 +96,15 @@ struct MMA_Atom<MMA_Traits<MMAOperation, Args...>>
        Tensor<TB, BLayout> const& B,
        Tensor<TC, CLayout> const& C) const
   {
+    if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+        threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+    {
+      printf("mma.call_debug: step 1\n");
+      printf("    Tensor A: "); print(A); printf("\n");
+      printf("    Tensor B: "); print(B); printf("\n");
+      printf("    Tensor C: "); print(C); printf("\n");
+      printf("    Tensor D: "); print(D); printf("\n");
+    }
     static_assert(DLayout::rank == 1, "Expected rank-1 D tensor");
     static_assert(ALayout::rank == 1, "Expected rank-1 A tensor");
     static_assert(BLayout::rank == 1, "Expected rank-1 B tensor");

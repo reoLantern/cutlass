@@ -391,6 +391,15 @@ mma_unpack(MMA_Traits<MMA_Op, MMA_Args...> const& traits,
            Tensor<TB, BLayout> const& B,
            Tensor<TC, CLayout> const& C)
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+      threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+  {
+    printf("mma_unpack_debug: step 1\n");
+    printf("    Tensor A: "); print(A); printf("\n");
+    printf("    Tensor B: "); print(B); printf("\n");
+    printf("    Tensor C: "); print(C); printf("\n");
+    printf("    Tensor D: "); print(D); printf("\n");
+  }
   static_assert(is_rmem<TD>::value, "Expected registers in MMA_Atom::call");
   static_assert(is_rmem<TA>::value, "Expected registers in MMA_Atom::call");
   static_assert(is_rmem<TB>::value, "Expected registers in MMA_Atom::call");

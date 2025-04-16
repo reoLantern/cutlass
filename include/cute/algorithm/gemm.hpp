@@ -85,6 +85,14 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,
      Tensor<TC, CLayout>      & C)
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+      threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+  {
+    printf("mma_debug: step 1\n");
+    printf("    Tensor A: "); print(A); printf("\n");
+    printf("    Tensor B: "); print(B); printf("\n");
+    printf("    Tensor C: "); print(C); printf("\n");
+  }
   return gemm(mma, C, A, B, C);
 }
 
@@ -129,6 +137,8 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,
      Tensor<TC, CLayout>     && C)
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 && threadIdx.x == 0 && threadIdx.y == 0 &&
+    threadIdx.z == 0) printf("mma_debug: 2\n");
   return gemm(mma, C, A, B, C);
 }
 
@@ -145,6 +155,15 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,
      Tensor<TC, CLayout> const& C)
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+      threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+  {
+    printf("mma_debug: step 4\n");
+    printf("    Tensor A: "); print(A); printf("\n");
+    printf("    Tensor B: "); print(B); printf("\n");
+    printf("    Tensor C: "); print(C); printf("\n");
+    printf("    Tensor D: "); print(D); printf("\n");
+  }
   return gemm(mma, D, A, B, C);
 }
 
@@ -163,6 +182,8 @@ gemm(Tensor<TD, DLayout>      & D,
      Tensor<TB, BLayout> const& B,
      Tensor<TC, CLayout> const& C)
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 && threadIdx.x == 0 && threadIdx.y == 0 &&
+    threadIdx.z == 0) printf("mma_debug: 4\n");
   using MMA = MMA_Atom<UniversalFMA<typename Tensor<TD,DLayout>::value_type,
                                     typename Tensor<TA,ALayout>::value_type,
                                     typename Tensor<TB,BLayout>::value_type,
@@ -193,6 +214,15 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (V) Logical data
      Tensor<TC, CLayout> const& C)  // (V) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+      threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+  {
+    printf("mma_debug: step 5\n");
+    printf("    Tensor A: "); print(A); printf("\n");
+    printf("    Tensor B: "); print(B); printf("\n");
+    printf("    Tensor C: "); print(C); printf("\n");
+    printf("    Tensor D: "); print(D); printf("\n");
+  }
   // No static assertions on (V), MMA checks compatibility
   mma.call(D, A, B, C);
 }
@@ -215,6 +245,8 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (N)   Logical data
      Tensor<TC, CLayout> const& C)  // (M,N) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 && threadIdx.x == 0 && threadIdx.y == 0 &&
+    threadIdx.z == 0) printf("mma_debug: 6\n");
   CUTE_STATIC_ASSERT_V(size<0>(A) == size<0>(C));  // AM == CM
   CUTE_STATIC_ASSERT_V(size<0>(B) == size<1>(C));  // BN == CN
   CUTE_STATIC_ASSERT_V(size<0>(C) == size<0>(D) && size<1>(C) == size<1>(D));
@@ -243,6 +275,8 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (N,K) Logical data
      Tensor<TC, CLayout> const& C)  // (M,N) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 && threadIdx.x == 0 && threadIdx.y == 0 &&
+    threadIdx.z == 0) printf("mma_debug: 7\n");
   CUTE_STATIC_ASSERT_V(size<0>(A) == size<0>(C));  // AM == CM
   CUTE_STATIC_ASSERT_V(size<0>(B) == size<1>(C));  // BN == CN
   CUTE_STATIC_ASSERT_V(size<1>(A) == size<1>(B));  // AK == BK
@@ -278,6 +312,15 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (V,N)   Logical data
      Tensor<TC, CLayout> const& C)  // (V,M,N) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+      threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+  {
+    printf("mma_debug: step 3\n");
+    printf("    Tensor A: "); print(A); printf("\n");
+    printf("    Tensor B: "); print(B); printf("\n");
+    printf("    Tensor C: "); print(C); printf("\n");
+    printf("    Tensor D: "); print(D); printf("\n");
+  }
   CUTE_STATIC_ASSERT_V(size<1>(A) == size<1>(C));  // AM == CM
   CUTE_STATIC_ASSERT_V(size<1>(B) == size<2>(C));  // BN == CN
   CUTE_STATIC_ASSERT_V(size<0>(C) == size<0>(D) && size<1>(C) == size<1>(D) && size<2>(C) == size<2>(D));
@@ -403,6 +446,15 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (V,N,K) Logical data
      Tensor<TC, CLayout> const& C)  // (V,M,N) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 &&
+      threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
+  {
+    printf("mma_debug: step 2\n");
+    printf("    Tensor A: "); print(A); printf("\n");
+    printf("    Tensor B: "); print(B); printf("\n");
+    printf("    Tensor C: "); print(C); printf("\n");
+    printf("    Tensor D: "); print(D); printf("\n");
+  }
   CUTE_STATIC_ASSERT_V(size<1>(A) == size<1>(C));  // AM == CM
   CUTE_STATIC_ASSERT_V(size<1>(B) == size<2>(C));  // BN == CN
   CUTE_STATIC_ASSERT_V(size<2>(A) == size<2>(B));  // AK == BK
@@ -442,6 +494,8 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (N,K) Logical data
      Tensor<TC, CLayout> const& C)  // (M,N) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 && threadIdx.x == 0 && threadIdx.y == 0 &&
+    threadIdx.z == 0) printf("mma_debug: 10\n");
   CUTE_STATIC_ASSERT_V(size<0>(A) == size<0>(C));  // AM == CM
   CUTE_STATIC_ASSERT_V(size<0>(B) == size<1>(C));  // BN == CN
   CUTE_STATIC_ASSERT_V(size<1>(A) == size<1>(B));  // AK == BK
@@ -477,6 +531,8 @@ gemm(MMA_Atom<MMA>       const& mma,
      Tensor<TB, BLayout> const& B,  // (V,N,K) Logical data
      Tensor<TC, CLayout> const& C)  // (V,M,N) Logical data
 {
+  if (blockIdx.x == 0 && blockIdx.y == 0 && blockIdx.z == 0 && threadIdx.x == 0 && threadIdx.y == 0 &&
+    threadIdx.z == 0) printf("mma_debug: 11\n");
   CUTE_STATIC_ASSERT_V(size<1>(A) == size<1>(C));  // AM == CM
   CUTE_STATIC_ASSERT_V(size<1>(B) == size<2>(C));  // BN == CN
   CUTE_STATIC_ASSERT_V(size<2>(A) == size<2>(B));  // AK == BK
