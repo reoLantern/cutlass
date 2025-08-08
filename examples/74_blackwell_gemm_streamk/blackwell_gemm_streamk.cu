@@ -61,7 +61,7 @@
        # Heuristic mode with deterministic reduction
       ./74_blackwell_gemm_streamk" --m=256 --n=256 --k=16384 --decomposition=Heuristic --reduction=Deterministic
 
-      # Stream-K mode with determinsitic reduction
+      # Stream-K mode with deterministic reduction
       ./74_blackwell_gemm_streamk" --m=256 --n=256 --k=16384 --decomposition=StreamK --reduction=Deterministic
 
       # Split-K mode with a splitting factor of 2 and deterministic reduction
@@ -543,7 +543,7 @@ int run(Options &options) {
 
 int main(int argc, char const **args) {
 
-  // CUTLASS must be compiled with CUDA 12.8 Toolkit to run this example
+  // CUTLASS must be compiled with CUDA 12.8 Toolkit or newer to run this example
   // and must have compute capability at least 100.
   if (__CUDACC_VER_MAJOR__ < 12 || (__CUDACC_VER_MAJOR__ == 12 && __CUDACC_VER_MINOR__ < 8)) {
     std::cerr << "This example requires CUDA 12.8 or newer." << std::endl;
@@ -560,7 +560,6 @@ int main(int argc, char const **args) {
     std::cerr << "This example requires a GPU of NVIDIA's Blackwell architecture (compute capability 100 or 101)." << std::endl;
     return 0;
   }
-
   //
   // Parse options
   //
